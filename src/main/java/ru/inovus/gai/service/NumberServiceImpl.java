@@ -3,7 +3,6 @@ package ru.inovus.gai.service;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import ru.inovus.gai.exception.GaiRuntimeException;
 import ru.inovus.gai.model.Number;
@@ -52,16 +51,12 @@ public class NumberServiceImpl implements NumberService {
         Number newNumber;
         //если еще не выдавались номера, то вернем самый маленький
         if (sequentialUsedNumbers.isEmpty()) {
-            String firstPossibleNumber = String.format(
-                            Number.TEMPLATE,
-                            sortedPossibleLetters.get(0),
-                            "000",
-                            sortedPossibleLetters.get(0),
-                            sortedPossibleLetters.get(0)
-                    )
-                    .concat(StringUtils.SPACE)
-                    .concat(Number.REGION);
-            newNumber = new Number(firstPossibleNumber);
+            newNumber = Number.builder()
+                    .firstLetter(sortedPossibleLetters.get(0))
+                    .secondLetter(sortedPossibleLetters.get(0))
+                    .thirdLetter(sortedPossibleLetters.get(0))
+                    .digits(0)
+                    .build();
         } else {
             //иначе возьмем следующий по порядку номер
             newNumber = incrementNumber(sequentialUsedNumbers.last());
@@ -94,7 +89,7 @@ public class NumberServiceImpl implements NumberService {
             incrementLetters(newNumber);
 
             //если у нас после увеличения букв ничего не изменилось, значит это последний возможный номер
-            if (newNumber.getVal().equals(oldNumber.getVal())){
+            if (newNumber.getVal().equals(oldNumber.getVal())) {
                 throw new GaiRuntimeException("numbers.ended");
             }
 
@@ -112,15 +107,12 @@ public class NumberServiceImpl implements NumberService {
     private Number generateRandomNumber() {
         Random random = new Random();
 
-        String randomNumberVal = String.format(
-                Number.TEMPLATE,
-                unsortedPossibleLetters.get(random.nextInt(unsortedPossibleLetters.size())),
-                random.nextInt(1000),
-                unsortedPossibleLetters.get(random.nextInt(unsortedPossibleLetters.size())),
-                unsortedPossibleLetters.get(random.nextInt(unsortedPossibleLetters.size()))
-        ).concat(Number.REGION);
-
-        return new Number(randomNumberVal);
+        return Number.builder()
+                .firstLetter(unsortedPossibleLetters.get(random.nextInt(unsortedPossibleLetters.size())))
+                .secondLetter(unsortedPossibleLetters.get(random.nextInt(unsortedPossibleLetters.size())))
+                .thirdLetter(unsortedPossibleLetters.get(random.nextInt(unsortedPossibleLetters.size())))
+                .digits(random.nextInt(1000))
+                .build();
     }
 
     /**

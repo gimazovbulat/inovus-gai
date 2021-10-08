@@ -1,48 +1,75 @@
 package ru.inovus.gai.model;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- *
  * Представление номера
- * */
+ */
 @Data
-@AllArgsConstructor
+@NoArgsConstructor
 public class Number implements Comparable<Number> {
 
-    public static final String TEMPLATE = "%c%s%c%c";
+    /**
+     * Шаблон, по которому и строится номер
+     */
+    private static final String TEMPLATE = "%c%s%c%c";
 
     //пусть хардкод
-    public static final String REGION = "116 RUS";
+    private static final String REGION = "116 RUS";
 
-    //сам номер
+    /**
+     * Сам номер
+     */
     private String val;
 
     /**
-     * Возвращает цифры в номере
-     *
-     * @return Цифры в номере
+     * Цифры в номере по шаблону, то есть с нулями в начале, если они нужны
      */
-    public int getDigits() {
-        return Integer.parseInt(val.substring(1, 4));
+    private int digits;
+
+    /**
+     * Первая буква слева направо
+     */
+    private char firstLetter;
+
+    /**
+     * Вторая буква слева направо
+     */
+    private char secondLetter;
+
+    /**
+     * Третья буква слева направо
+     */
+    private char thirdLetter;
+
+    @Builder
+    public Number(int digits, char firstLetter, char secondLetter, char thirdLetter) {
+        this.digits = digits;
+        this.firstLetter = firstLetter;
+        this.secondLetter = secondLetter;
+        this.thirdLetter = thirdLetter;
+    }
+
+    public Number(String val) {
+        this.val = val;
+
+        String letters = String.valueOf(val.charAt(0)).concat(val.substring(4, 7));
+        setFirstLetter(letters.charAt(0));
+        setSecondLetter(letters.charAt(1));
+        setThirdLetter(letters.charAt(2));
+        setDigits(Integer.parseInt(val.substring(1, 4)));
     }
 
     /**
-     * Заменяет цифры в номере
+     * Возвращает цифры в номере по шаблону, то есть с нулями в начале, если они нужны
      *
-     * @param digits новые цифры
+     * @return Цифры в номере
      */
-    public void setDigits(int digits) {
-        setVal(
-                getFirstLetter() +
-                        String.format("%0" + 3 + "d", digits) +
-                        getSecondLetter() +
-                        getThirdLetter() +
-                        StringUtils.SPACE +
-                        REGION
-        );
+    public String getDigitsAsString() {
+        return String.format("%0" + 3 + "d", getDigits());
     }
 
     /**
@@ -51,61 +78,21 @@ public class Number implements Comparable<Number> {
      * @return Буквы в номере
      */
     public String getLetters() {
-        return String.valueOf(val.charAt(0)).concat(val.substring(4, 7));
+        return String.valueOf(getFirstLetter()) + getSecondLetter() + getThirdLetter();
     }
 
     /**
-     * Возвращает 1 букву в номере слева направо
-     *
-     * @return 1 буква в номере
+     * Возвращает номер
      */
-    public char getFirstLetter() {
-        return getLetters().charAt(0);
-    }
-
-    /**
-     * Возвращает 2 букву в номере слева направо
-     *
-     * @return 2 буква в номере
-     */
-    public char getSecondLetter() {
-        return getLetters().charAt(1);
-    }
-
-    /**
-     * Возвращает 3 букву в номере слева направо
-     *
-     * @return 3 буква в номере
-     */
-    public char getThirdLetter() {
-        return getLetters().charAt(2);
-    }
-
-    /**
-     * Заменяет первую букву в номере
-     *
-     * @param letter новая первая буква
-     */
-    public void setFirstLetter(char letter) {
-        setVal(String.valueOf(letter) + this.getDigits() + getSecondLetter() + getThirdLetter() + StringUtils.SPACE + REGION);
-    }
-
-    /**
-     * Заменяет вторую букву в номере
-     *
-     * @param letter вторая первая буква
-     */
-    public void setSecondLetter(char letter) {
-        setVal(String.valueOf(getFirstLetter()) + this.getDigits() + letter + getThirdLetter() + StringUtils.SPACE + REGION);
-    }
-
-    /**
-     * Заменяет третью букву в номере
-     *
-     * @param letter третья первая буква
-     */
-    public void setThirdLetter(char letter) {
-        setVal(String.valueOf(getFirstLetter()) + this.getDigits() + getSecondLetter() + letter + StringUtils.SPACE + REGION);
+    public String getVal() {
+        return String.format(TEMPLATE,
+                        getFirstLetter(),
+                        getDigitsAsString(),
+                        getSecondLetter(),
+                        getThirdLetter()
+                )
+                .concat(StringUtils.SPACE)
+                .concat(REGION);
     }
 
     @Override
