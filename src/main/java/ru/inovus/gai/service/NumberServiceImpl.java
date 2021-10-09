@@ -90,7 +90,7 @@ public class NumberServiceImpl implements NumberService {
 
             //если у нас после увеличения букв ничего не изменилось, значит это последний возможный номер
             if (newNumber.getVal().equals(oldNumber.getVal())) {
-                throw new GaiRuntimeException("numbers.ended");
+                throw new GaiRuntimeException(messageService.get("numbers.ended"));
             }
 
             newNumber.setDigits(0);
