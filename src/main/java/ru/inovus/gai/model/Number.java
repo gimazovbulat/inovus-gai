@@ -26,7 +26,7 @@ public class Number implements Comparable<Number> {
     private String val;
 
     /**
-     * Цифры в номере по шаблону, то есть с нулями в начале, если они нужны
+     * Цифры в номере
      */
     private int digits;
 
